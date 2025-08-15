@@ -29,13 +29,15 @@ def get_webdriver(width: int, height: int, port: int) -> webdriver.Chrome:
 
 
 def start_webdriver(url: str, width: int = 256, height: int = 256) -> webdriver.Chrome:
-    # TODO: window size does not work
     LOGGER.debug(f"starting new webdriver with window size {width}x{height}")
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless=new")
-    options.add_argument(f"--size={width},{height}")
+    options.add_argument("--headless")
+    options.add_argument(f"--window-size={width + 16},{height + 147}")
     options.add_argument("--disable-extensions")
     options.add_argument("--disable-plugins")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--disable-software-rasterizer")
+    options.add_argument("--hide-scrollbars")
     options.add_argument("--mute-audio")
     driver = webdriver.Chrome(options=options)
     LOGGER.debug(f"getting page {url}")
@@ -53,7 +55,7 @@ def grab_screenshot(driver: webdriver.Chrome, dest: pathlib.Path) -> None:
     LOGGER.debug(f"grabbing screenshot")
     filepath = dest.joinpath("screenshot.png").resolve().absolute()
     filepath.parent.mkdir(parents=True, exist_ok=True)
-    driver.get_screenshot_as_file(filepath)
+    driver.save_screenshot(filepath)
     LOGGER.info(f"saved screenshot under {filepath}")
 
 
