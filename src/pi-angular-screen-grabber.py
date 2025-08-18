@@ -65,6 +65,7 @@ def save_screenshot(data: bytes, dest: pathlib.Path) -> None:
         filepath.parent.mkdir(parents=True, exist_ok=True)
         Image.open(io.BytesIO(data)).save(filepath)
         LOGGER.info(f"saved screenshot under {filepath}")
+        print(filepath, end="\n")
     except:
         LOGGER.error("cannot save screenshot")
 
@@ -76,6 +77,10 @@ def wait(seconds: int) -> None:
 
 def main(args: dict) -> None:
     LOGGER.debug(args)
+    if args.verbose:
+        LOGGER.setLevel(logging.INFO)
+    if args.debug:
+        LOGGER.setLevel(logging.DEBUG)
     driver = None
     try:
         ng = run_angular(pathlib.Path(args.angular_project_path), int(args.port))
@@ -102,4 +107,6 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--size", type=int, nargs=2, default=[800, 480])
     parser.add_argument("-d", "--delay", type=int, default=5)
     parser.add_argument("-i", "--interval", type=int, default=10)
+    parser.add_argument("-v", "--verbose", action="store_true", default=False)
+    parser.add_argument("-e", "--debug", action="store_true", default=False)
     main(parser.parse_args())
