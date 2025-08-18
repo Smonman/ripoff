@@ -1,4 +1,5 @@
 import argparse
+import io
 import logging
 import logging.config
 import pathlib
@@ -6,6 +7,7 @@ import signal
 import subprocess
 import time
 
+from PIL import Image
 from selenium import webdriver
 
 logging.config.fileConfig("src/logging.conf")
@@ -53,10 +55,18 @@ def stop_webdriver(driver: webdriver.Chrome) -> None:
 
 def grab_screenshot(driver: webdriver.Chrome, dest: pathlib.Path) -> None:
     LOGGER.debug(f"grabbing screenshot")
-    filepath = dest.joinpath("screenshot.png").resolve().absolute()
-    filepath.parent.mkdir(parents=True, exist_ok=True)
-    driver.save_screenshot(filepath)
-    LOGGER.info(f"saved screenshot under {filepath}")
+    image_bytes = driver.get_screenshot_as_png()
+    save_screenshot(image_bytes, dest)
+
+
+def save_screenshot(data: bytes, dest: pathlib.Path) -> None:
+    try:
+        filepath = dest.joinpath("screenshot.bmp").resolve().absolute()
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+        Image.open(io.BytesIO(data)).save(filepath)
+        LOGGER.info(f"saved screenshot under {filepath}")
+    except:
+        LOGGER.error("cannot save screenshot")
 
 
 def wait(seconds: int) -> None:
