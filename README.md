@@ -1,3 +1,3 @@
-# pi-angular-screen-grabber
+# ripoff
 
-This project is used to capture screenshots of an angular application in periodic intervals.
+This project is used to capture screenshots of a website in periodic intervals.
