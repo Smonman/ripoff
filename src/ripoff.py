@@ -14,34 +14,23 @@ logging.config.fileConfig("src/logging.conf")
 LOGGER = logging.getLogger()
 
 
-def run_angular(path: pathlib.Path, port: int) -> subprocess.Popen:
-    LOGGER.debug(f"starting angular at {path.absolute()} at port {port}")
-    return subprocess.Popen(["ng", "serve", "--port", str(port)], shell=True, cwd=path.absolute())
+def get_webdriver(url: str, options: dict) -> webdriver.Chrome:
+    LOGGER.debug(f"getting webdriver with options {options}")
+    return start_webdriver(url, options)
 
 
-def stop_angular(p: subprocess.Popen) -> None:
-    if p is not None:
-        LOGGER.debug(f"terminating angular")
-        p.terminate()
-
-
-def get_webdriver(width: int, height: int, port: int) -> webdriver.Chrome:
-    LOGGER.debug(f"getting webdriver with window size {width}x{height}")
-    return start_webdriver(f"http://localhost:{port}", width, height)
-
-
-def start_webdriver(url: str, width: int = 256, height: int = 256) -> webdriver.Chrome:
-    LOGGER.debug(f"starting new webdriver with window size {width}x{height}")
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    options.add_argument(f"--window-size={width + 16},{height + 147}")
-    options.add_argument("--disable-extensions")
-    options.add_argument("--disable-plugins")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--disable-software-rasterizer")
-    options.add_argument("--hide-scrollbars")
-    options.add_argument("--mute-audio")
-    driver = webdriver.Chrome(options=options)
+def start_webdriver(url: str, options: dict) -> webdriver.Chrome:
+    LOGGER.debug(f"starting new webdriver with options {options}")
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument(f"--window-size={options["width"] + 16},{options["height"] + 147}")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-plugins")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--disable-software-rasterizer")
+    chrome_options.add_argument("--hide-scrollbars")
+    chrome_options.add_argument("--mute-audio")
+    driver = webdriver.Chrome(options=chrome_options)
     LOGGER.debug(f"getting page {url}")
     driver.get(url)
     return driver
@@ -75,17 +64,22 @@ def wait(seconds: int) -> None:
     time.sleep(seconds)
 
 
-def main(args: dict) -> None:
-    LOGGER.debug(args)
+def setup_logger(args: dict) -> None:
     if args.verbose:
         LOGGER.setLevel(logging.INFO)
     if args.debug:
         LOGGER.setLevel(logging.DEBUG)
+
+
+def main(args: dict) -> None:
+    LOGGER.debug(args)
     driver = None
     try:
-        ng = run_angular(pathlib.Path(args.angular_project_path), int(args.port))
-        wait(args.delay)
-        driver = get_webdriver(args.size[0], args.size[1], args.port)
+        options = {
+            "width": args.size[0],
+            "height": args.size[1]
+        }
+        driver = get_webdriver(args.url, options)
         wait(args.delay)
         while (True):
             LOGGER.info("capture screenshot")
@@ -94,19 +88,19 @@ def main(args: dict) -> None:
     except KeyboardInterrupt:
         LOGGER.info(f"captured keyboard interrupt")
     finally:
-        LOGGER.info("stopping angular client and webdriver")
-        stop_angular(ng)
+        LOGGER.info("stopping webdriver")
         stop_webdriver(driver)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Capture screenshots of an angular application.")
-    parser.add_argument("-a", "--angular-project-path", type=pathlib.Path, required=True)
-    parser.add_argument("-p", "--port", type=int, default=4200)
+    parser.add_argument("url", type=str, nargs="?")
     parser.add_argument("-o", "--output-path", type=pathlib.Path, default=pathlib.Path("./out"))
     parser.add_argument("-s", "--size", type=int, nargs=2, default=[800, 480])
     parser.add_argument("-d", "--delay", type=int, default=5)
     parser.add_argument("-i", "--interval", type=int, default=10)
     parser.add_argument("-v", "--verbose", action="store_true", default=False)
     parser.add_argument("-e", "--debug", action="store_true", default=False)
-    main(parser.parse_args())
+    args = parser.parse_args()
+    setup_logger(args)
+    main(args)
