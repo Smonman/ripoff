@@ -3,8 +3,6 @@ import io
 import logging
 import logging.config
 import pathlib
-import signal
-import subprocess
 import time
 
 from PIL import Image
@@ -93,14 +91,14 @@ def main(args: dict) -> None:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Capture screenshots of an angular application.")
-    parser.add_argument("url", type=str, nargs="?")
-    parser.add_argument("-o", "--output-path", type=pathlib.Path, default=pathlib.Path("./out"))
-    parser.add_argument("-s", "--size", type=int, nargs=2, default=[800, 480])
-    parser.add_argument("-d", "--delay", type=int, default=5)
-    parser.add_argument("-i", "--interval", type=int, default=10)
-    parser.add_argument("-v", "--verbose", action="store_true", default=False)
-    parser.add_argument("-e", "--debug", action="store_true", default=False)
+    parser = argparse.ArgumentParser(description="Capture screenshots of a webpage. Screenshots are taken in regular intervals and saved in the output folder. The resulting file will be named screenshot.bmp.")
+    parser.add_argument("url", type=str, nargs="?", default="http://localhost:8080", help="the URL of the webpage")
+    parser.add_argument("-o", "--output-path", type=pathlib.Path, default=pathlib.Path("./out"), help="the path where screenshots should be saved to")
+    parser.add_argument("-s", "--size", type=int, nargs=2, default=[800, 480], help="the size of the screenshot in pixels; width and height")
+    parser.add_argument("-d", "--delay", type=int, default=5, help="delay in seconds between getting the webpage and first taking a screenshot")
+    parser.add_argument("-i", "--interval", type=int, default=10, help="interval in seconds between screenshots")
+    parser.add_argument("-v", "--verbose", action="store_true", default=False, help="show more log output")
+    parser.add_argument("-e", "--debug", action="store_true", default=False, help="show debug log messages")
     args = parser.parse_args()
     setup_logger(args)
     main(args)
