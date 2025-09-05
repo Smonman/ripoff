@@ -4,12 +4,20 @@ import logging
 import logging.config
 import pathlib
 import time
+import signal
 
 from PIL import Image
 from selenium import webdriver
 
 logging.config.fileConfig("src/logging.conf")
 LOGGER = logging.getLogger()
+
+run = True
+
+
+def sigterm_handler(signum, frame):
+    global run
+    run = False
 
 
 def get_webdriver(url: str, options: dict) -> webdriver.Chrome:
@@ -21,7 +29,7 @@ def start_webdriver(url: str, options: dict) -> webdriver.Chrome:
     LOGGER.debug(f"starting new webdriver with options {options}")
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--headless")
-    chrome_options.add_argument(f"--window-size={options['width'] + 16},{options['height'] + 147}")
+    chrome_options.add_argument(f"--window-size={options['width']},{options['height'] + 139}")
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--disable-plugins")
     chrome_options.add_argument("--disable-gpu")
@@ -81,7 +89,7 @@ def main(args: dict) -> None:
         }
         driver = get_webdriver(args.url, options)
         wait(args.delay)
-        while (True):
+        while (run):
             LOGGER.info("capture screenshot")
             grab_screenshot(driver, args.output_path)
             wait(args.interval)
@@ -103,4 +111,5 @@ if __name__ == "__main__":
     parser.add_argument("-e", "--debug", action="store_true", default=False, help="show debug log messages")
     args = parser.parse_args()
     setup_logger(args)
+    signal.signal(signal.SIGTERM, sigterm_handler)
     main(args)
