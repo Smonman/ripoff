@@ -24,3 +24,7 @@ The screenshots are saved to the output directory with the filename: `screenshot
 ## Requirements
 
 This relies on [ChromeDriver](https://developer.chrome.com/docs/chromedriver/downloads) being installed at the default location.
+
+## Raspberry Pi
+
+[Here](https://gist.github.com/Smonman/06d7121be082fc81029bc56003b665a4) is an example of how this can be used with a Raspberry Pi and a Waveshare eInk display:
