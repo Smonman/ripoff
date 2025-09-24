@@ -9,7 +9,8 @@ import signal
 from PIL import Image
 from selenium import webdriver
 
-logging.config.fileConfig("src/logging.conf")
+config_path = pathlib.Path(__file__).parent.resolve().joinpath("logging.conf")
+logging.config.fileConfig(config_path)
 LOGGER = logging.getLogger()
 
 run = True
