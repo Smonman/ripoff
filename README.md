@@ -27,4 +27,4 @@ This relies on [ChromeDriver](https://developer.chrome.com/docs/chromedriver/dow
 
 ## Raspberry Pi
 
-[Here](https://gist.github.com/Smonman/06d7121be082fc81029bc56003b665a4) is an example of how this can be used with a Raspberry Pi and a Waveshare eInk display:
+[Here](https://gist.github.com/Smonman/06d7121be082fc81029bc56003b665a4) is an example of how this can be used with a Raspberry Pi and a Waveshare eInk display.
